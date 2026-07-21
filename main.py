@@ -4,34 +4,38 @@ from pyrogram import Client, filters
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 
-# Web Service မသေစေရန် Port ဖွင့်ပေးသည့် Web Server
+# Web Service မသေစေရန် Keep-Alive Server
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"VIP Bot is Running!")
+        self.wfile.write(b"VIP MM SubFlix Bot is Online!")
 
 def run_web_server():
     port = int(os.environ.get("PORT", 8080))
     server = HTTPServer(('0.0.0.0', port), SimpleHTTPRequestHandler)
     server.serve_forever()
 
-# Background Thread တွင် Web Server ကို run ခြင်း
 threading.Thread(target=run_web_server, daemon=True).start()
 
 # Environment Variables မှ ယူမည်
-API_ID = int(os.environ.get("API_ID", "2040"))
-API_HASH = os.environ.get("API_HASH", "b18441a1ed607e10e46b64752f7a284d")
+API_ID = int(os.environ.get("API_ID", "6113807"))
+API_HASH = os.environ.get("API_HASH", "2918231982fb7fb5e3158b681938063d")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "8744124078:AAF_ZzrHZnRnf-zKVWYNO_rgIZINOByXSyE")
-STORAGE_CHANNEL = int(os.environ.get("STORAGE_CHANNEL", "0"))
+STORAGE_CHANNEL = os.environ.get("STORAGE_CHANNEL", "0")
+
+try:
+    STORAGE_CHANNEL = int(STORAGE_CHANNEL)
+except ValueError:
+    STORAGE_CHANNEL = 0
 
 app = Client("vip_subflix_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 @app.on_message(filters.command("start"))
 async def start_handler(client, message):
     if len(message.command) > 1:
-        msg_id = int(message.command[1])
         try:
+            msg_id = int(message.command[1])
             welcome_msg = await message.reply_text(
                 "<b>VIP MM SubFlix မှကြိုဆိုပါတယ် လူကြီးမင်း။ အလိုရှိသော ဇာတ်ကားကို ပို့ပေးနေပါပြီရှင့်။</b>",
                 parse_mode="html"
