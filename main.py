@@ -15,7 +15,7 @@ VIP_CHANNEL_ID = -1004401727688
 
 # 🔗 Channel နဲ့ Admin Link များ
 PUBLIC_CHANNEL_LINK = "https://t.me/your_public_channel"  # (မိမိ Public Channel Link ထည့်ပေးပါ)
-VIP_ADMIN_LINK = "https://t.me/Lynn_subflix528"           # VIP Admin Username ထည့်သွင်းပြီးပါပြီ
+VIP_ADMIN_LINK = "https://t.me/Lynn_subflix528"           # VIP Admin Username
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
@@ -29,6 +29,7 @@ def is_vip_member(user_id):
         return False
     except Exception as e:
         print(f"Error checking membership: {e}")
+        # အကယ်၍ Bot က VIP Channel ထဲမှာ Admin မဟုတ်ရင် သို့မဟုတ် ID မှားနေရင် Auto False ပြန်မည်
         return False
 
 # မက်ဆေ့ခ်ျကို ၂ မိနစ် (စက္ကန့် ၁၂၀) ပြည့်ရင် Auto ဖျက်မည့် Function
