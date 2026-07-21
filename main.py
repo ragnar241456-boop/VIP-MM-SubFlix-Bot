@@ -13,6 +13,10 @@ STORAGE_CHANNEL_ID = -1004415434873
 # VIP Channel ID (VIP Member များ ရှိသည့်နေရာ)
 VIP_CHANNEL_ID = -1004401727688  
 
+# 🔗 Channel နဲ့ Admin Link များ
+PUBLIC_CHANNEL_LINK = "https://t.me/your_public_channel"  # (မိမိ Public Channel Link ထည့်ပေးပါ)
+VIP_ADMIN_LINK = "https://t.me/Lynn_subflix528"           # VIP Admin Username ထည့်သွင်းပြီးပါပြီ
+
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
@@ -20,7 +24,6 @@ app = Flask(__name__)
 def is_vip_member(user_id):
     try:
         member = bot.get_chat_member(VIP_CHANNEL_ID, user_id)
-        # Member, Administrator, Creator ဖြစ်ရင် VIP ဟု သတ်မှတ်မည်
         if member.status in ['member', 'administrator', 'creator']:
             return True
         return False
@@ -43,24 +46,27 @@ def send_vip_movie(message):
     user_id = message.from_user.id
     command_args = message.text.split()
     
-    # အခြေအနေ ၁ - ဒီအတိုင်း /start နှိပ်ပြီး ဝင်လာသူ
+    # 🟢 အခြေအနေ ၁ - Movie Link ကနေ မဟုတ်ဘဲ ဒီအတိုင်း /start လာနှိပ်သူများအတွက် ကြော်ငြာပြခြင်း
     if len(command_args) == 1:
         welcome_text = (
-            "<b>VIP MM SubFlix မှကြိုဆိုပါတယ် လူကြီးမင်း။</b>\n\n"
-            "Public Channel မူဗီလင့်ခ်များမှတစ်ဆင့် ဇာတ်ကားများကို ဝင်ရောက်ရယူနိုင်ပါတယ်ရှင့်။"
+            "<b>VIP MM SubFlix မှ ကြိုဆိုပါတယ်ရှင့်။ ✨</b>\n\n"
+            "🎬 ဇာတ်ကားများကိုကြည့်ရှုရန် ကျွန်မတို့၏ <b>Public Channel</b> တွင် လင့်ခ်များ ဝင်ရောက်ရယူနိုင်ပါသည်။\n"
+            "👑 VIP Member ဝင်ရောက်ပါက VIP ဇာတ်ကားပေါင်းများစွာကို စိတ်တိုင်းကျ ကြည့်ရှုနိုင်ပါပြီ။\n\n"
+            f"📢 <b>Public Channel:</b> <a href='{PUBLIC_CHANNEL_LINK}'>ဒီမှာနှိပ်၍ ဝင်ပါ</a>\n"
+            f"💬 <b>VIP Member ဝင်ရန်:</b> <a href='{VIP_ADMIN_LINK}'>@Lynn_subflix528 သို့ ဆက်သွယ်ပါ</a>"
         )
-        bot.send_message(chat_id, welcome_text, parse_mode="HTML")
+        bot.send_message(chat_id, welcome_text, parse_mode="HTML", disable_web_page_preview=True)
         
-    # အခြေအနေ ၂ - VIP Movie Link နှိပ်ပြီး ရောက်လာသူ
+    # 🟢 အခြေအနေ ၂ - VIP Movie Link နှိပ်ပြီး ရောက်လာသူများ
     else:
-        # 🛑 ၁။ VIP Member ဟုတ်/မဟုတ် အရင် စစ်ဆေးခြင်း
+        # 🛑 ၁။ VIP Member ဟုတ်/မဟုတ် စစ်ဆေးခြင်း
         if not is_vip_member(user_id):
             not_vip_text = (
                 "❌ <b>လူကြီးမင်းသည် VIP Member မဟုတ်သေးပါရှင့်။</b>\n\n"
-                "ဤဇာတ်ကားကို ရယူနိုင်ရန်အတွက် VIP Member ဝင်ရောက်ပေးပါရန် လိုအပ်ပါသည်။ "
-                "VIP ဝင်ရောက်လိုပါက Admin ထံ သို့ ဆက်သွယ်ပေးပါရှင့်။"
+                "ဤဇာတ်ကားကို ရယူနိုင်ရန်အတွက် VIP Member ဝင်ရောက်ပေးပါရန် လိုအပ်ပါသည်။\n"
+                f"VIP Member ဝင်ရောက်လိုပါက <a href='{VIP_ADMIN_LINK}'>Admin (@Lynn_subflix528) ထံ ဆက်သွယ်ပေးပါရှင့်</a>။"
             )
-            bot.send_message(chat_id, not_vip_text, parse_mode="HTML")
+            bot.send_message(chat_id, not_vip_text, parse_mode="HTML", disable_web_page_preview=True)
             return
 
         # 🟢 VIP Member ဖြစ်ပါက Database Channel ထဲမှ ဇာတ်ကား ပို့ပေးခြင်း
@@ -69,7 +75,7 @@ def send_vip_movie(message):
             
             welcome_msg = bot.send_message(
                 chat_id, 
-                "<b>VIP MM SubFlix မှကြိုဆိုပါတယ် လူကြီးမင်း။ အလိုရှိသော ဇာတ်ကားကို ပို့ပေးနေပါပြီရှင့်။</b>", 
+                "<b>VIP MM SubFlix မှ ကြိုဆိုပါတယ်ရှင့်။ အလိုရှိသော ဇာတ်ကားကို ပို့ပေးနေပါပြီ... ⏳</b>", 
                 parse_mode="HTML"
             )
             
@@ -85,7 +91,7 @@ def send_vip_movie(message):
             warning_text = (
                 "⚠️ <b>မူပိုင်ခွင့်ဥပဒေကြောင့် ဤဇာတ်ကားဖိုင်သည် (၂) မိနစ်အတွင်း အလိုအလျောက် ပျက်ပါမည်။ "
                 "မိမိ၏ Saved Messages ထဲသို့ ကြိုတင် Save ထားပေးပါရှင့်။</b>\n\n"
-                "🌸 <i>သာယာတဲ့နေ့လေးတစ်နေ့ဖြစ်ပါစေလို့ ဆုမွန်ကောင်းတောင်းပေးလိုက်ပါတယ်ရှင့်။</i>"
+                "🌸 <i>သာယာသောနေ့လေးဖြစ်ပါစေကြောင်း VIP MM SubFlix မှ ဆုမွန်ကောင်းတောင်းပေးလိုက်ပါတယ်ရှင့်။</i>"
             )
             warning_msg = bot.send_message(chat_id, warning_text, parse_mode="HTML")
             
@@ -100,7 +106,12 @@ def send_vip_movie(message):
 
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
-    bot.reply_to(message, "<b>VIP MM SubFlix</b>\n\nဇာတ်ကားများကို Public Channel ထဲရှိ လင့်ခ်များမှတစ်ဆင့် ရယူနိုင်ပါတယ်ရှင့်။", parse_mode="HTML")
+    reply_text = (
+        "<b>VIP MM SubFlix</b>\n\n"
+        f"📢 Public Channel မှတစ်ဆင့် ဇာတ်ကားများကို ရယူနိုင်ပါသည်:\n{PUBLIC_CHANNEL_LINK}\n\n"
+        f"💬 VIP Member ဝင်ရောက်ရန်: <a href='{VIP_ADMIN_LINK}'>@Lynn_subflix528</a>"
+    )
+    bot.reply_to(message, reply_text, parse_mode="HTML", disable_web_page_preview=True)
 
 @app.route('/' + BOT_TOKEN, methods=['POST'])
 def getMessage():
@@ -112,7 +123,7 @@ def getMessage():
 @app.route("/")
 def webhook():
     bot.remove_webhook()
-    app_url = os.environ.get("RENDER_EXTERNAL_URL", "https://vip-mm-subflix-bot.onrender.com")
+    app_url = os.environ.get("RENDER_EXTERNAL_URL", "https://vip-mm-subflix-bot-1.onrender.com")
     bot.set_webhook(url=f"{app_url}/{BOT_TOKEN}")
     return "VIP MM SubFlix Bot is running!", 200
 
