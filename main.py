@@ -8,8 +8,8 @@ BOT_TOKEN = "8744124078:AAF_ZzrHZnRnf-zKVWYNO_rgIZINOByXSyE"
 STORAGE_CHANNEL_ID = -1004415434873  
 VIP_CHANNEL_ID = -1004401727688  
 
-PUBLIC_CHANNEL_LINK = "https://t.me/your_public_channel" 
-VIP_ADMIN_LINK = "https://t.me/Lynn_subflix528"           
+PUBLIC_CHANNEL_LINK = "https://t.me/subflix_mm"       # Public Channel Link ထည့်သွင်းပြီးပါပြီ
+VIP_ADMIN_LINK = "https://t.me/Lynn_subflix528"           # VIP Admin Username
 
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 app = Flask(__name__)
@@ -41,7 +41,7 @@ def send_vip_movie(message):
         welcome_text = (
             "<b>VIP MM SubFlix မှ ကြိုဆိုပါတယ်ရှင့်။ ✨</b>\n\n"
             "🎬 ဇာတ်ကားများကိုကြည့်ရှုရန် ကျွန်မတို့၏ <b>Public Channel</b> တွင် လင့်ခ်များ ဝင်ရောက်ရယူနိုင်ပါသည်။\n"
-            "👑 VIP Member ဝင်ရောက်ပါက VIP ဇာတ်ကားပေါင်းများစွာကို ကြော်ငြာမပါဘဲ စိတ်တိုင်းကျ ကြည့်ရှုနိုင်ပါပြီ။\n\n"
+            "👑 VIP Member ဝင်ရောက်ပါက VIP ဇာတ်ကားပေါင်းများစွာကို စိတ်တိုင်းကျ ကြည့်ရှုနိုင်ပါပြီ။\n\n"
             f"📢 <b>Public Channel:</b> <a href='{PUBLIC_CHANNEL_LINK}'>ဒီမှာနှိပ်၍ ဝင်ပါ</a>\n"
             f"💬 <b>VIP Member ဝင်ရန်:</b> <a href='{VIP_ADMIN_LINK}'>@Lynn_subflix528 သို့ ဆက်သွယ်ပါ</a>"
         )
