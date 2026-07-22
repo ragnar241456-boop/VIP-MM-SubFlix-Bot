@@ -8,7 +8,7 @@ BOT_TOKEN = "8744124078:AAF_ZzrHZnRnf-zKVWYNO_rgIZINOByXSyE"
 STORAGE_CHANNEL_ID = -1004415434873  
 VIP_CHANNEL_ID = -1004401727688  
 
-PUBLIC_CHANNEL_LINK = "https://t.me/subflix_mm"       # Public Channel Link ထည့်သွင်းပြီးပါပြီ
+PUBLIC_CHANNEL_LINK = "https://t.me/subflix_mm"       # Public Channel Link
 VIP_ADMIN_LINK = "https://t.me/Lynn_subflix528"           # VIP Admin Username
 
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
@@ -25,7 +25,7 @@ def is_vip_member(user_id):
         return False
 
 def auto_delete_message(chat_id, message_id):
-    time.sleep(120)
+    time.sleep(120)  # ၂ မိနစ် (၁၂၀ စက္ကန့်) စောင့်မည်
     try:
         bot.delete_message(chat_id, message_id)
     except Exception as e:
@@ -37,6 +37,7 @@ def send_vip_movie(message):
     user_id = message.from_user.id
     command_args = message.text.split()
     
+    # ၁။ Link မှမဟုတ်ဘဲ Start နှိပ်ရုံသီးသန့် မက်ဆေ့ခ်ျ
     if len(command_args) == 1:
         welcome_text = (
             "<b>VIP MM SubFlix မှ ကြိုဆိုပါတယ်ရှင့်။ ✨</b>\n\n"
@@ -48,6 +49,7 @@ def send_vip_movie(message):
         bot.send_message(chat_id, welcome_text, parse_mode="HTML", disable_web_page_preview=True)
         
     else:
+        # VIP Member ဟုတ်မဟုတ် စစ်ဆေးခြင်း
         if not is_vip_member(user_id):
             not_vip_text = (
                 "❌ <b>လူကြီးမင်းသည် VIP Member မဟုတ်သေးပါရှင့်။</b>\n\n"
@@ -57,37 +59,80 @@ def send_vip_movie(message):
             bot.send_message(chat_id, not_vip_text, parse_mode="HTML", disable_web_page_preview=True)
             return
 
-        try:
-            movie_message_id = int(command_args[1])
-            
-            welcome_msg = bot.send_message(
-                chat_id, 
-                "<b>VIP MM SubFlix မှ ကြိုဆိုပါတယ်ရှင့်။ အလိုရှိသော ဇာတ်ကားကို ပို့ပေးနေပါပြီ... ⏳</b>", 
-                parse_mode="HTML"
-            )
-            
-            time.sleep(1)
-            
-            sent_movie = bot.forward_message(
-                chat_id, 
-                from_chat_id=STORAGE_CHANNEL_ID, 
-                message_id=movie_message_id
-            )
-            
-            warning_text = (
-                "⚠️ <b>မူပိုင်ခွင့်ဥပဒေကြောင့် ဤဇာတ်ကားဖိုင်သည် (၂) မိနစ်အတွင်း အလိုအလျောက် ပျက်ပါမည်။ "
-                "မိမိ၏ Saved Messages ထဲသို့ ကြိုတင် Save ထားပေးပါရှင့်။</b>\n\n"
-                "🌸 <i>သာယာသောနေ့လေးဖြစ်ပါစေကြောင်း VIP MM SubFlix မှ ဆုမွန်ကောင်းတောင်းပေးလိုက်ပါတယ်ရှင့်။</i>"
-            )
-            warning_msg = bot.send_message(chat_id, warning_text, parse_mode="HTML")
-            
-            threading.Thread(target=auto_delete_message, args=(chat_id, welcome_msg.message_id)).start()
-            threading.Thread(target=auto_delete_message, args=(chat_id, sent_movie.message_id)).start()
-            threading.Thread(target=auto_delete_message, args=(chat_id, warning_msg.message_id)).start()
-            
-        except Exception as e:
-            bot.send_message(chat_id, "❌ ဇာတ်ကားဖိုင် ရှာမတွေ့ပါ သို့မဟုတ် ဖိုင်ပျက်နေပါသည်ရှင့်။")
-            print(f"Error forwarding movie: {e}")
+        param = command_args[1]
+
+        # ၂။ စီးရီးအလိုက် ပို့ပေးမည့် စနစ် (ဥပမာ: ?start=series_44_59)
+        if param.startswith("series_"):
+            try:
+                parts = param.split("_")
+                start_id = int(parts[1])
+                end_id = int(parts[2])
+
+                welcome_msg = bot.send_message(
+                    chat_id, 
+                    "<b>VIP MM SubFlix မှ ကြိုဆိုပါတယ်ရှင့်။ စီးရီး အပိုင်းများကို ပို့ပေးနေပါပြီ... ⏳</b>", 
+                    parse_mode="HTML"
+                )
+                threading.Thread(target=auto_delete_message, args=(chat_id, welcome_msg.message_id)).start()
+
+                # အပိုင်းအလိုက် တစ်ခုချင်း ပို့ပေးခြင်း
+                for msg_id in range(start_id, end_id + 1):
+                    try:
+                        sent_movie = bot.forward_message(
+                            chat_id, 
+                            from_chat_id=STORAGE_CHANNEL_ID, 
+                            message_id=msg_id
+                        )
+                        threading.Thread(target=auto_delete_message, args=(chat_id, sent_movie.message_id)).start()
+                        time.sleep(0.5) # Telegram Rate Limit မထိစေရန် ၀.၅ စက္ကန့် ခြား ပို့ပေးမည်
+                    except Exception as err:
+                        print(f"Failed to forward message {msg_id}: {err}")
+
+                warning_text = (
+                    "⚠️ <b>မူပိုင်ခွင့်ဥပဒေကြောင့် ဤဇာတ်ကားဖိုင်များသည် (၂) မိနစ်အတွင်း အလိုအလျောက် ပျက်ပါမည်။ "
+                    "မိမိ၏ Saved Messages ထဲသို့ ကြိုတင် Save ထားပေးပါရှင့်။</b>\n\n"
+                    "🌸 <i>သာယာသောနေ့လေးဖြစ်ပါစေကြောင်း VIP MM SubFlix မှ ဆုမွန်ကောင်းတောင်းပေးလိုက်ပါတယ်ရှင့်။</i>"
+                )
+                warning_msg = bot.send_message(chat_id, warning_text, parse_mode="HTML")
+                threading.Thread(target=auto_delete_message, args=(chat_id, warning_msg.message_id)).start()
+
+            except Exception as e:
+                bot.send_message(chat_id, "❌ စီးရီးဖိုင်များ ရှာမတွေ့ပါ သို့မဟုတ် လင့်ခ် ပုံစံ မှားယွင်းနေပါသည်ရှင့်။")
+                print(f"Error forwarding series: {e}")
+
+        # ၃။ တစ်ကားတည်း ပို့ပေးမည့် စနစ် (ဥပမာ: ?start=44)
+        else:
+            try:
+                movie_message_id = int(param)
+                
+                welcome_msg = bot.send_message(
+                    chat_id, 
+                    "<b>VIP MM SubFlix မှ ကြိုဆိုပါတယ်ရှင့်။ အလိုရှိသော ဇာတ်ကားကို ပို့ပေးနေပါပြီ... ⏳</b>", 
+                    parse_mode="HTML"
+                )
+                
+                time.sleep(1)
+                
+                sent_movie = bot.forward_message(
+                    chat_id, 
+                    from_chat_id=STORAGE_CHANNEL_ID, 
+                    message_id=movie_message_id
+                )
+                
+                warning_text = (
+                    "⚠️ <b>မူပိုင်ခွင့်ဥပဒေကြောင့် ဤဇာတ်ကားဖိုင်သည် (၂) မိနစ်အတွင်း အလိုအလျောက် ပျက်ပါမည်။ "
+                    "မိမိ၏ Saved Messages ထဲသို့ ကြိုတင် Save ထားပေးပါရှင့်။</b>\n\n"
+                    "🌸 <i>သာယာသောနေ့လေးဖြစ်ပါစေကြောင်း VIP MM SubFlix မှ ဆုမွန်ကောင်းတောင်းပေးလိုက်ပါတယ်ရှင့်။</i>"
+                )
+                warning_msg = bot.send_message(chat_id, warning_text, parse_mode="HTML")
+                
+                threading.Thread(target=auto_delete_message, args=(chat_id, welcome_msg.message_id)).start()
+                threading.Thread(target=auto_delete_message, args=(chat_id, sent_movie.message_id)).start()
+                threading.Thread(target=auto_delete_message, args=(chat_id, warning_msg.message_id)).start()
+                
+            except Exception as e:
+                bot.send_message(chat_id, "❌ ဇာတ်ကားဖိုင် ရှာမတွေ့ပါ သို့မဟုတ် ဖိုင်ပျက်နေပါသည်ရှင့်။")
+                print(f"Error forwarding movie: {e}")
 
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
